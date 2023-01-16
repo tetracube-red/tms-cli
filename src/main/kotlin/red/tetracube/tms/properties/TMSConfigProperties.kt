@@ -37,6 +37,21 @@ data class TMSConfigProperties(
 
     @ConfigProperty(name = "tms-cli.installation.expose-services")
     val installationExposeServices: Boolean,
+
+    @ConfigProperty(name = "tms-cli.gatekeeper.application-name")
+    val gatekeeperApplicationName: String,
+
+    @ConfigProperty(name = "tms-cli.gatekeeper.admin-username")
+    val gatekeeperAdminUsername: String,
+
+    @ConfigProperty(name = "tms-cli.gatekeeper.admin-password")
+    val gatekeeperPassword: String,
+
+    @ConfigProperty(name = "tms-cli.solution.hostname")
+    val solutionHostname: String,
+
+    @ConfigProperty(name = "tms-cli.solution.certificates")
+    val solutionCertificates: List<String>
 ) {
 
     fun namespaceName(): String {
@@ -68,5 +83,33 @@ data class TMSConfigProperties(
 
     fun dbExternalNetworkName(): String {
         return "lb-$dbApplicationName-net"
+    }
+
+    fun gatekeeperSecretName(): String {
+        return "secrets-$gatekeeperApplicationName"
+    }
+
+    fun gatekeeperConfigMapName(): String {
+        return "configs-$gatekeeperApplicationName"
+    }
+
+    fun gatekeeperDbConnectionString(): String {
+        return "jdbc:postgresql://${dbInternalNetworkName()}:5432/$dbName?currentSchema=gatekeeper"
+    }
+
+    fun gatekeeperHostname(): String {
+        return "gk.$solutionHostname"
+    }
+
+    fun gatekeeperCertificatesSecret(): String {
+        return "keystore-secret-$gatekeeperApplicationName"
+    }
+
+    fun gatekeeperLoadBalancer(): String {
+        return "lb-$gatekeeperApplicationName"
+    }
+
+    fun gatekeeperIngress(): String {
+        return "in-$gatekeeperApplicationName"
     }
 }

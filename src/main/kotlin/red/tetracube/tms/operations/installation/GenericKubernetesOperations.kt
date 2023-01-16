@@ -201,11 +201,13 @@ class GenericKubernetesOperations(
     ) {
         val ingress = IngressBuilder()
             .withApiVersion("networking.k8s.io/v1")
+            .withKind("Ingress")
             .withNewMetadata()
             .withName(ingressName)
             .withAnnotations<String, String>(
                 mapOf(
-                    Pair("kubernetes.io/ingress.class", "traefik")
+                    //Pair("kubernetes.io/ingress.class", "nginx")
+                    Pair("ingress.kubernetes.io/ssl-redirect" , "false")
                 )
             )
             .endMetadata()
@@ -237,6 +239,6 @@ class GenericKubernetesOperations(
             .ingresses()
             .inNamespace(namespaceName)
             .resource(ingress)
-            .createOrReplace()
+            .create()
     }
 }

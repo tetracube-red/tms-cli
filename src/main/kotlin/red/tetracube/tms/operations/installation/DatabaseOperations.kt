@@ -90,9 +90,9 @@ class DatabaseOperations(
     private fun createInitDBConfigMap() {
         val configMapData = mapOf<String, String>().toMutableMap()
 
-        val sqlResources = DatabaseOperations::class.java.getResource("${File.separator}sql")
+        val sqlResources = DatabaseOperations::class.java.getResource("/sql")
         val resourcesPath = if (sqlResources != null) {
-            Path(sqlResources.path).listDirectoryEntries("*.sql")
+            Path(File(sqlResources.path).path).listDirectoryEntries("*.sql")
         } else {
             return
         }
