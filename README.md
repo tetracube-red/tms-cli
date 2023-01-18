@@ -15,10 +15,11 @@ For each kind of operation the CLI ha a proper command:
 
 ## How to use the CLI
 
-* `-g, --gatekeeper-admin-password`: required - the password of the *admin* user
-of Keycloak service
-* `-a, --gatekeeper-hostname`: required - the hostname where the Keycloak service
-will be exposed in the network and **MUST** be equal to the CN field of the certificate
+In the main folder of the project there is a file called **.env.example** file. This file 
+contains all possibile values used by the CLI to start any kind of operation. 
+
+Here the explained list of available operations. Each operation is required only in certain
+cases or only in certain kind of operation. 
 
 * `OPERATION_TYPE`: specifies which operation you want perform with the CLI, available 
 options are: install
@@ -31,8 +32,12 @@ be named, this is useful in case of multiple installations in the same cluster;
 files will be persisted;
 * `INSTALLATION_EXPOSE_SERVICES`: **required only for installation** - all internal 
 services will be exposed through the load balancer of K8s;
-* `AFFINITY_NODE_NAME`: 
-* `GATEKEEPER_ADMIN_PASSWORD`: 
-* `SOLUTION_HOSTNAME`: 
-* `CERTIFICATE_KEY_FILE`: 
-* `CERTIFICATE_PEM_FILE`: 
+* `AFFINITY_NODE_NAME`: **required only for installation** - the name of the node where
+the db data path is created;
+* `GATEKEEPER_ADMIN_PASSWORD`: **required only for installation** - the admin password
+to use for administrator of keycloak system
+* `SOLUTION_HOSTNAME`: **required only for installation** - the hostname exported for all
+services in K8s platform
+* `CERTIFICATE_KEY_FILE`: **required only for installation** - the key of SSL certificate file  
+* `CERTIFICATE_PEM_FILE`: **required only for installation** - the key of SSL certificate 
+itself 
