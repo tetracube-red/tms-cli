@@ -11,7 +11,7 @@ The CLI can
 For each kind of operation the CLI ha a proper command:
 * 🟢 install - build in progress
 * 🟦 create house - to do
-* 🟦 create user - to do
+* 🟢 create user - build in progress
 
 ## How to use the CLI
 
@@ -41,3 +41,5 @@ services in K8s platform
 * `CERTIFICATE_KEY_FILE`: **required only for installation** - the key of SSL certificate file  
 * `CERTIFICATE_PEM_FILE`: **required only for installation** - the key of SSL certificate 
 itself 
+* `GUEST_NAME`: **required only in case of guest creation** - the name of the guest that is intended
+to create

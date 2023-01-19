@@ -50,6 +50,9 @@ data class TMSConfigProperties(
     @ConfigProperty(name = "tms-cli.solution.hostname")
     val solutionHostname: String,
 
+    @ConfigProperty(name = "tms-cli.guest.name")
+    val guestName: String,
+
     @ConfigProperty(name = "tms-cli.solution.certificates")
     val solutionCertificates: List<String>
 ) {

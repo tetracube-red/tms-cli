@@ -1,5 +1,6 @@
 package red.tetracube
 
+import io.quarkus.runtime.Quarkus
 import io.quarkus.runtime.QuarkusApplication
 import io.quarkus.runtime.annotations.QuarkusMain
 import red.tetracube.tms.operations.guests.create.GuestCreateOperation
@@ -20,6 +21,7 @@ class RootTMSCommand(
         } else if (tmsConfigProperties.operationType == "create guest") {
             this.guestCreateOperation.createUser()
         }
+        Quarkus.waitForExit();
         return 0
     }
 }
