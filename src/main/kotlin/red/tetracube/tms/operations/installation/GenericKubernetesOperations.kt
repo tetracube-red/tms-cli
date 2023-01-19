@@ -1,9 +1,9 @@
 package red.tetracube.tms.operations.installation
 
 import io.fabric8.kubernetes.api.model.*
-import io.fabric8.kubernetes.api.model.extensions.HTTPIngressPathBuilder
-import io.fabric8.kubernetes.api.model.extensions.IngressBuilder
-import io.fabric8.kubernetes.api.model.extensions.IngressRuleBuilder
+import io.fabric8.kubernetes.api.model.networking.v1.HTTPIngressPathBuilder
+import io.fabric8.kubernetes.api.model.networking.v1.IngressBuilder
+import io.fabric8.kubernetes.api.model.networking.v1.IngressRuleBuilder
 import io.fabric8.kubernetes.client.KubernetesClient
 import red.tetracube.tms.properties.TMSConfigProperties
 import java.util.*
@@ -200,13 +200,11 @@ class GenericKubernetesOperations(
         linkedPort: Int
     ) {
         val ingress = IngressBuilder()
-            .withApiVersion("networking.k8s.io/v1")
-            .withKind("Ingress")
             .withNewMetadata()
             .withName(ingressName)
             .withAnnotations<String, String>(
                 mapOf(
-                    //Pair("kubernetes.io/ingress.class", "nginx")
+                    Pair("kubernetes.io/ingress.class", "nginx"),
                     Pair("ingress.kubernetes.io/ssl-redirect" , "false")
                 )
             )
@@ -221,9 +219,14 @@ class GenericKubernetesOperations(
                             listOf(
                                 HTTPIngressPathBuilder()
                                     .withPath("/")
+                                    .withPathType("Prefix")
                                     .withNewBackend()
-                                    .withServiceName(linkedServiceName)
-                                    .withServicePort(IntOrString(linkedPort))
+                                    .withNewService()
+                                    .withName(linkedServiceName)
+                                    .withNewPort()
+                                    .withNumber(linkedPort)
+                                    .endPort()
+                                    .endService()
                                     .endBackend()
                                     .build()
                             )
@@ -235,10 +238,11 @@ class GenericKubernetesOperations(
             .endSpec()
             .build()
         this.kubernetesClient
-            .extensions()
+            .network()
+            .v1()
             .ingresses()
             .inNamespace(namespaceName)
             .resource(ingress)
-            .create()
+            .createOrReplace()
     }
 }

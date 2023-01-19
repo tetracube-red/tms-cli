@@ -22,7 +22,7 @@ class GatekeeperInitializationOperations(
         var resteasyClient = TetraResteasyReactiveClientProvider()
                 .newRestEasyClient(null, null, true)
         keycloak = KeycloakBuilder.builder()
-                .serverUrl("https://${tmsConfigProperties.gatekeeperHostname()}:8443")
+                .serverUrl(tmsConfigProperties.gatekeeperBasePath())
                 .realm("master")
                 .username(tmsConfigProperties.gatekeeperAdminUsername)
                 .password(tmsConfigProperties.gatekeeperPassword)

@@ -317,14 +317,14 @@ class GatekeeperOperations(
                 tmsConfigProperties.gatekeeperApplicationName,
                 ports
             )
-      /*  this.genericKubernetesOperations
+        this.genericKubernetesOperations
             .createIngress(
                 tmsConfigProperties.namespaceName(),
                 tmsConfigProperties.gatekeeperIngress(),
                 tmsConfigProperties.gatekeeperHostname(),
                 tmsConfigProperties.gatekeeperLoadBalancer(),
                 8443
-            )*/
+            )
     }
 
 }

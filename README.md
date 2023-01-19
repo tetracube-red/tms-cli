@@ -25,7 +25,7 @@ cases or only in certain kind of operation.
 options are: install
 * `KUBERNETES_CONFIG_FILE`: **always required** - specify the full path where is possible 
 to read a valid kubernetes value (same file to allow kubectl to connect to the same cluster);
-* `INSTALLATION_NAME`: **required only for installation** - how the installation should 
+* `INSTALLATION_NAME`: **always required** - how the installation should 
 be named, this is useful in case of multiple installations in the same cluster;
 * `DB_PASSWORD`: **required only for installation** - the database password;
 * `DB_DATA_PATH`: **required only for installation** - the path where the database 
@@ -34,9 +34,9 @@ files will be persisted;
 services will be exposed through the load balancer of K8s;
 * `AFFINITY_NODE_NAME`: **required only for installation** - the name of the node where
 the db data path is created;
-* `GATEKEEPER_ADMIN_PASSWORD`: **required only for installation** - the admin password
+* `GATEKEEPER_ADMIN_PASSWORD`: **always required** - the admin password
 to use for administrator of keycloak system
-* `SOLUTION_HOSTNAME`: **required only for installation** - the hostname exported for all
+* `SOLUTION_HOSTNAME`: **always required** - the hostname exported for all
 services in K8s platform
 * `CERTIFICATE_KEY_FILE`: **required only for installation** - the key of SSL certificate file  
 * `CERTIFICATE_PEM_FILE`: **required only for installation** - the key of SSL certificate 

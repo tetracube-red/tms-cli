@@ -8,7 +8,7 @@ class InstallationOrchestrator(
     private val namespaceOperations: NamespaceOperations,
     private val databaseOperations: DatabaseOperations,
     private val gatekeeperOperations: GatekeeperOperations,
-    private val gatekeeperInitializationOperations: GatekeeperInitializationOperations
+    private val gatekeeperInitializationOperations: GatekeeperInitializationOperations,
 ) {
 
     private val logger = LoggerFactory.getLogger(InstallationOrchestrator::class.java)
@@ -26,5 +26,4 @@ class InstallationOrchestrator(
         logger.info("Setup gatekeeper")
         this.gatekeeperInitializationOperations.createRealm()
     }
-
 }

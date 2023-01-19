@@ -2,12 +2,14 @@ package red.tetracube
 
 import io.quarkus.runtime.QuarkusApplication
 import io.quarkus.runtime.annotations.QuarkusMain
+import red.tetracube.tms.operations.guests.create.GuestCreateOperation
 import red.tetracube.tms.operations.installation.InstallationOrchestrator
 import red.tetracube.tms.properties.TMSConfigProperties
 
 @QuarkusMain
 class RootTMSCommand(
     private val installationOrchestrator: InstallationOrchestrator,
+    private val guestCreateOperation: GuestCreateOperation,
     private val tmsConfigProperties: TMSConfigProperties
 ) : QuarkusApplication {
 
@@ -15,6 +17,8 @@ class RootTMSCommand(
     override fun run(vararg args: String): Int {
         if (tmsConfigProperties.operationType == "install") {
             this.installationOrchestrator.doInstallation()
+        } else if (tmsConfigProperties.operationType == "create guest") {
+            this.guestCreateOperation.createUser()
         }
         return 0
     }

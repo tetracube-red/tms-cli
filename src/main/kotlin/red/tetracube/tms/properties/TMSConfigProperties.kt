@@ -100,6 +100,9 @@ data class TMSConfigProperties(
     fun gatekeeperHostname(): String {
         return "gk.$solutionHostname"
     }
+    fun gatekeeperBasePath(): String {
+        return "https://${gatekeeperHostname()}:8443"
+    }
 
     fun gatekeeperCertificatesSecret(): String {
         return "keystore-secret-$gatekeeperApplicationName"
