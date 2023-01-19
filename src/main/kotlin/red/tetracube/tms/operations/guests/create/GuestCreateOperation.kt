@@ -34,7 +34,7 @@ class GuestCreateOperation(
 
     @PostConstruct
     fun initKeycloak() {
-        var resteasyClient = TetraResteasyReactiveClientProvider()
+        val resteasyClient = TetraResteasyReactiveClientProvider()
             .newRestEasyClient(null, null, true)
         keycloak = KeycloakBuilder.builder()
             .serverUrl(tmsConfigProperties.gatekeeperBasePath())
@@ -66,7 +66,7 @@ class GuestCreateOperation(
             .create(user)
         if (response.status != 201) {
             logger.warn("Operation failed: {} -> {}", response.status, response.entity)
-            return;
+            return
         }
 
         val userId = response.readEntity(UserRepresentation::class.java).id
