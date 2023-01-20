@@ -65,7 +65,7 @@ class GuestCreateOperation(
         val response = keycloak.realm(tmsConfigProperties.namespaceName())
             .users()
             .create(user)
-        if (response.status != 201) {
+        if (response.status != 201 && response.status != 409) {
             logger.warn("Operation failed: {} -> {}", response.status, response.entity)
             return
         }
@@ -82,7 +82,26 @@ class GuestCreateOperation(
             .users()[userId]
             .resetPassword(userCredential)
 
-        createQR(emptyMap())
+        generateQRData(userCredential.value)
+    }
+
+    fun generateQRData(userCredentials: String) {
+        logger.info("Building QRCode data")
+        val outDataCollector = emptyMap<String, String>().toMutableMap()
+        outDataCollector["gatekeeper_base_path"] = "https://${tmsConfigProperties.gatekeeperHostname()}"
+        outDataCollector["gatekeeper_realm"] = tmsConfigProperties.namespaceName()
+        outDataCollector["client_id"] = tmsConfigProperties.mobileClientId
+        outDataCollector["username"] = tmsConfigProperties.guestName
+        outDataCollector["credentials"] = userCredentials
+
+        logger.info("Retrieving client secrets")
+        val secret = keycloak.realm(tmsConfigProperties.namespaceName())
+            .clients()
+            .findByClientId(tmsConfigProperties.mobileClientId)
+            .first()
+            .secret
+        outDataCollector["client_secret"] = secret
+        createQR(outDataCollector)
         runBrowser()
     }
 
@@ -153,7 +172,7 @@ class GuestCreateOperation(
         logger.info("Determining which operating system is running")
         logger.info("Launching {} on {}", cmd.toString(), System.getProperty("os.name"))
         if (System.getProperty("os.name").lowercase().startsWith("windows")) {
-            osRuntime.exec("rundll32 SHELL32.DLL,ShellExec_RunDLL $cmd")
+            osRuntime.exec("rundll32 SHELL32.DLL,ShellExec_RunDLL $url")
         } else {
             osRuntime.exec(arrayOf("sh", "-c", cmd.toString()))
         }

@@ -54,7 +54,10 @@ data class TMSConfigProperties(
     val guestName: String,
 
     @ConfigProperty(name = "tms-cli.solution.certificates")
-    val solutionCertificates: List<String>
+    val solutionCertificates: List<String>,
+
+    @ConfigProperty(name = "tms-cli.mobile.client-id")
+    val mobileClientId: String
 ) {
 
     fun namespaceName(): String {

@@ -33,7 +33,7 @@ class GatekeeperInitializationOperations(
 
     fun createRealm() {
         val clientRepresentation = ClientRepresentation()
-        clientRepresentation.clientId = "tetracube-mobile-app"
+        clientRepresentation.clientId = tmsConfigProperties.mobileClientId
         clientRepresentation.isPublicClient = false
         clientRepresentation.isEnabled = true
         clientRepresentation.isDirectAccessGrantsEnabled = true
