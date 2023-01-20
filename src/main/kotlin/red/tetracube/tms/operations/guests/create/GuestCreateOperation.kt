@@ -15,11 +15,13 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import red.tetracube.tms.clients.TetraResteasyReactiveClientProvider
 import red.tetracube.tms.properties.TMSConfigProperties
+import java.io.File
 import java.io.IOException
 import java.util.*
 import javax.annotation.PostConstruct
 import javax.enterprise.context.ApplicationScoped
 import kotlin.io.path.Path
+import kotlin.math.log
 
 
 @ApplicationScoped
@@ -50,10 +52,9 @@ class GuestCreateOperation(
         val userCredential = CredentialRepresentation()
         userCredential.isTemporary = false
         userCredential.type = CredentialRepresentation.PASSWORD
-        userCredential.credentialData = UUID.randomUUID().toString()
+        userCredential.value = UUID.randomUUID().toString()
             .replace("\\-", "")
             .substring(2, 10)
-        userCredential.secretData = userCredential.credentialData
 
         val user = UserRepresentation()
         user.username = tmsConfigProperties.guestName
@@ -69,23 +70,34 @@ class GuestCreateOperation(
             return
         }
 
-        val userId = response.readEntity(UserRepresentation::class.java).id
+        logger.info("Getting just created guest's id")
+        val userId = keycloak.realm(tmsConfigProperties.namespaceName())
+            .users()
+            .search(user.username)
+            .first()
+            .id
 
-        logger.info("Setting guest's password")
+        logger.info("Setting guest's credentials")
         keycloak.realm(tmsConfigProperties.namespaceName())
             .users()[userId]
             .resetPassword(userCredential)
 
         createQR(emptyMap())
         runBrowser()
-
     }
 
     @Throws(WriterException::class, IOException::class)
     fun createQR(dataMap: Map<String, String>) {
+        logger.info("Generating QR Code")
         val data = objectMapper.writeValueAsString(dataMap)
-        val path =
-            GuestCreateOperation::class.java.classLoader.getResource("META-INF/resources/static")!!.path + "/demo.png"
+        val path = File(
+            File(
+                GuestCreateOperation::class.java.classLoader
+                    .getResource("META-INF/resources/static")!!
+                    .path
+            )
+                .path + "/qr_guest_info.png"
+        ).path
         val charset = "UTF-8"
         val hashMap: MutableMap<EncodeHintType?, ErrorCorrectionLevel?> =
             hashMapOf<EncodeHintType?, ErrorCorrectionLevel?>().toMutableMap()
@@ -98,6 +110,8 @@ class GuestCreateOperation(
                 500,
                 500
             )
+
+        logger.info("Writing image file")
         MatrixToImageWriter.writeToPath(
             matrix,
             path.substring(path.lastIndexOf('.') + 1),
@@ -106,9 +120,11 @@ class GuestCreateOperation(
     }
 
     private fun runBrowser() {
+        logger.info("Searching for web browser in your operating system")
         val osRuntime = Runtime.getRuntime()
         val url = "http://localhost:9090/index.html"
         val browsers = arrayOf(
+            "chrome",
             "google-chrome",
             "firefox",
             "firefox-bin",
@@ -134,7 +150,12 @@ class GuestCreateOperation(
                 browsers[i], url
             )
         )
-
-        osRuntime.exec(arrayOf("sh", "-c", cmd.toString()))
+        logger.info("Determining which operating system is running")
+        logger.info("Launching {} on {}", cmd.toString(), System.getProperty("os.name"))
+        if (System.getProperty("os.name").lowercase().startsWith("windows")) {
+            osRuntime.exec("rundll32 SHELL32.DLL,ShellExec_RunDLL $cmd")
+        } else {
+            osRuntime.exec(arrayOf("sh", "-c", cmd.toString()))
+        }
     }
 }
