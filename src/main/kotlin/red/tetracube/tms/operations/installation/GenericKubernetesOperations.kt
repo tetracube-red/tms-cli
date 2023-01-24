@@ -5,14 +5,12 @@ import io.fabric8.kubernetes.api.model.networking.v1.HTTPIngressPathBuilder
 import io.fabric8.kubernetes.api.model.networking.v1.IngressBuilder
 import io.fabric8.kubernetes.api.model.networking.v1.IngressRuleBuilder
 import io.fabric8.kubernetes.client.KubernetesClient
-import red.tetracube.tms.properties.TMSConfigProperties
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 class GenericKubernetesOperations(
-    private val kubernetesClient: KubernetesClient,
-    private val tmsConfigProperties: TMSConfigProperties
+    private val kubernetesClient: KubernetesClient
 ) {
 
     fun createSecret(
@@ -74,7 +72,8 @@ class GenericKubernetesOperations(
         partOfApplication: String,
         applicationName: String,
         capacity: Quantity,
-        dbDataPath: String
+        dbDataPath: String,
+        affinityNode: String
     ) {
         val persistentVolume = PersistentVolumeBuilder()
             .withNewMetadata()
@@ -101,7 +100,7 @@ class GenericKubernetesOperations(
                         NodeSelectorRequirementBuilder()
                             .withKey("kubernetes.io/hostname")
                             .withOperator("In")
-                            .withValues(tmsConfigProperties.installationAffinityNodeName)
+                            .withValues(affinityNode)
                             .build()
                     )
                     .build()

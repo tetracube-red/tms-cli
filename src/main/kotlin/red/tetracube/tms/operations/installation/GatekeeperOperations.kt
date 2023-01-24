@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
 import io.fabric8.kubernetes.client.KubernetesClient
 import org.slf4j.LoggerFactory
 import red.tetracube.tms.properties.TMSConfigProperties
+import red.tetracube.tms.properties.TMSConfiguration
 import java.io.File
 import java.io.FileInputStream
 import javax.enterprise.context.ApplicationScoped
@@ -13,7 +14,8 @@ import javax.enterprise.context.ApplicationScoped
 class GatekeeperOperations(
     private val kubernetesClient: KubernetesClient,
     private val genericKubernetesOperations: GenericKubernetesOperations,
-    private val tmsConfigProperties: TMSConfigProperties
+    private val tmsConfigProperties: TMSConfigProperties,
+    private val tmsCliConfiguration: TMSConfiguration
 ) {
 
     private val logger = LoggerFactory.getLogger(GatekeeperOperations::class.java)
@@ -34,16 +36,16 @@ class GatekeeperOperations(
     private fun createSecrets() {
         val secretsData = mapOf(
             Pair("kc_db_username", tmsConfigProperties.dbUsername),
-            Pair("kc_db_password", tmsConfigProperties.dbPassword),
+            Pair("kc_db_password", tmsCliConfiguration.database!!.password!!),
             Pair("keycloak_admin", tmsConfigProperties.gatekeeperAdminUsername),
-            Pair("keycloak_admin_password", tmsConfigProperties.gatekeeperPassword)
+            Pair("keycloak_admin_password", tmsCliConfiguration.gatekeeper!!.adminPassword!!)
         )
             .toMutableMap()
         this.genericKubernetesOperations.createSecret(
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             tmsConfigProperties.gatekeeperSecretName(),
             tmsConfigProperties.gatekeeperApplicationName,
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             secretsData
         )
     }
@@ -54,21 +56,24 @@ class GatekeeperOperations(
             Pair("kc_metrics_enabled", "false"),
             Pair("kc_db", "postgres"),
             Pair("kc_db_url", tmsConfigProperties.gatekeeperDbConnectionString()),
-            Pair("kc_hostname", tmsConfigProperties.gatekeeperHostname()),
+            Pair("kc_hostname", tmsCliConfiguration.gatekeeperHostname()),
         )
             .toMutableMap()
         this.genericKubernetesOperations.createConfigMap(
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             tmsConfigProperties.gatekeeperConfigMapName(),
             tmsConfigProperties.gatekeeperApplicationName,
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             configMapData
         )
     }
 
     private fun storeCertificates() {
         val secretKeys = mapOf<String, String>().toMutableMap()
-        tmsConfigProperties.solutionCertificates
+        arrayOf(
+            tmsCliConfiguration.certs!!.certificateKey!!,
+            tmsCliConfiguration.certs!!.certificatePem!!
+        )
             .map { c -> File(c) }
             .forEach {
                 val certificateFileStream = FileInputStream(it)
@@ -78,10 +83,10 @@ class GatekeeperOperations(
             }
 
         this.genericKubernetesOperations.createSecret(
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             tmsConfigProperties.gatekeeperCertificatesSecret(),
             tmsConfigProperties.gatekeeperApplicationName,
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             secretKeys
         )
     }
@@ -92,7 +97,7 @@ class GatekeeperOperations(
             .withName(tmsConfigProperties.gatekeeperApplicationName)
             .withLabels<String, String>(
                 mapOf(
-                    Pair("part-of", tmsConfigProperties.namespaceName()),
+                    Pair("part-of", tmsCliConfiguration.namespaceName()),
                 )
             )
             .endMetadata()
@@ -102,7 +107,7 @@ class GatekeeperOperations(
             .withMatchLabels<String, String>(
                 mapOf(
                     Pair("name", tmsConfigProperties.gatekeeperApplicationName),
-                    Pair("part-of", tmsConfigProperties.namespaceName()),
+                    Pair("part-of", tmsCliConfiguration.namespaceName()),
                 )
             )
             .endSelector()
@@ -112,7 +117,7 @@ class GatekeeperOperations(
             .withLabels<String, String>(
                 mapOf(
                     Pair("name", tmsConfigProperties.gatekeeperApplicationName),
-                    Pair("part-of", tmsConfigProperties.namespaceName())
+                    Pair("part-of", tmsCliConfiguration.namespaceName())
                 )
             )
             .endMetadata()
@@ -293,7 +298,7 @@ class GatekeeperOperations(
         this.kubernetesClient
             .apps()
             .deployments()
-            .inNamespace(tmsConfigProperties.namespaceName())
+            .inNamespace(tmsCliConfiguration.namespaceName())
             .resource(deployment)
             .createOrReplace()
     }
@@ -312,16 +317,16 @@ class GatekeeperOperations(
             .createService(
                 tmsConfigProperties.gatekeeperLoadBalancer(),
                 "LoadBalancer",
-                tmsConfigProperties.namespaceName(),
-                tmsConfigProperties.namespaceName(),
+                tmsCliConfiguration.namespaceName(),
+                tmsCliConfiguration.namespaceName(),
                 tmsConfigProperties.gatekeeperApplicationName,
                 ports
             )
         this.genericKubernetesOperations
             .createIngress(
-                tmsConfigProperties.namespaceName(),
+                tmsCliConfiguration.namespaceName(),
                 tmsConfigProperties.gatekeeperIngress(),
-                tmsConfigProperties.gatekeeperHostname(),
+                tmsCliConfiguration.gatekeeperHostname(),
                 tmsConfigProperties.gatekeeperLoadBalancer(),
                 8443
             )

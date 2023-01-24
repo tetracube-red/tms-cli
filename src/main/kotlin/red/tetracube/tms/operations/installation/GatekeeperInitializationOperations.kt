@@ -6,29 +6,31 @@ import org.keycloak.representations.idm.ClientRepresentation
 import org.keycloak.representations.idm.RealmRepresentation
 import red.tetracube.tms.clients.TetraResteasyReactiveClientProvider
 import red.tetracube.tms.properties.TMSConfigProperties
+import red.tetracube.tms.properties.TMSConfiguration
 import javax.annotation.PostConstruct
 import javax.enterprise.context.ApplicationScoped
 
 
 @ApplicationScoped
 class GatekeeperInitializationOperations(
-        private val tmsConfigProperties: TMSConfigProperties
+    private val tmsConfigProperties: TMSConfigProperties,
+    private val tmsCliConfiguration: TMSConfiguration
 ) {
 
     private lateinit var keycloak: Keycloak
 
     @PostConstruct
     fun initKeycloak() {
-        var resteasyClient = TetraResteasyReactiveClientProvider()
-                .newRestEasyClient(null, null, true)
+        val resteasyClient = TetraResteasyReactiveClientProvider()
+            .newRestEasyClient(null, null, true)
         keycloak = KeycloakBuilder.builder()
-                .serverUrl(tmsConfigProperties.gatekeeperBasePath())
-                .realm("master")
-                .username(tmsConfigProperties.gatekeeperAdminUsername)
-                .password(tmsConfigProperties.gatekeeperPassword)
-                .clientId("admin-cli")
-                .resteasyClient(resteasyClient)
-                .build()
+            .serverUrl(tmsCliConfiguration.gatekeeperBasePath())
+            .realm("master")
+            .username(tmsConfigProperties.gatekeeperAdminUsername)
+            .password(tmsCliConfiguration.gatekeeper!!.adminPassword)
+            .clientId("admin-cli")
+            .resteasyClient(resteasyClient)
+            .build()
     }
 
     fun createRealm() {
@@ -42,7 +44,7 @@ class GatekeeperInitializationOperations(
         clientRepresentation.isStandardFlowEnabled = false
 
         val realm = RealmRepresentation()
-        realm.realm = tmsConfigProperties.namespaceName()
+        realm.realm = tmsCliConfiguration.namespaceName()
         realm.clients = listOf(clientRepresentation)
 
         keycloak.realms().create(realm)

@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder
 import io.fabric8.kubernetes.client.KubernetesClient
 import org.slf4j.LoggerFactory
 import red.tetracube.tms.properties.TMSConfigProperties
+import red.tetracube.tms.properties.TMSConfiguration
 import java.io.File
 import java.io.FileInputStream
 import javax.enterprise.context.ApplicationScoped
@@ -17,7 +18,8 @@ import kotlin.io.path.name
 class DatabaseOperations(
     private val kubernetesClient: KubernetesClient,
     private val genericKubernetesOperations: GenericKubernetesOperations,
-    private val tmsConfigProperties: TMSConfigProperties
+    private val tmsConfigProperties: TMSConfigProperties,
+    private val tmsCliConfiguration: TMSConfiguration
 ) {
 
     private val logger = LoggerFactory.getLogger(DatabaseOperations::class.java)
@@ -40,14 +42,14 @@ class DatabaseOperations(
     private fun createSecrets() {
         val secretsData = mapOf(
             Pair("postgres-user", tmsConfigProperties.dbUsername),
-            Pair("postgres-password", tmsConfigProperties.dbPassword)
+            Pair("postgres-password", tmsCliConfiguration.database!!.password!!)
         )
             .toMutableMap()
         this.genericKubernetesOperations.createSecret(
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             tmsConfigProperties.dbSecretName(),
             tmsConfigProperties.dbApplicationName,
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             secretsData
         )
     }
@@ -59,10 +61,10 @@ class DatabaseOperations(
         )
             .toMutableMap()
         this.genericKubernetesOperations.createConfigMap(
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             tmsConfigProperties.dbConfigMaps(),
             tmsConfigProperties.dbApplicationName,
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             configMapData
         )
     }
@@ -73,14 +75,15 @@ class DatabaseOperations(
             .withAmount("5")
             .build()
         this.genericKubernetesOperations.createPersistentVolume(
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             tmsConfigProperties.dbApplicationName,
             storageCapacity,
-            tmsConfigProperties.dbDataPath
+            tmsCliConfiguration.database!!.dataPath!!,
+            this.tmsCliConfiguration.kubernetes!!.affinityNode!!
         )
         this.genericKubernetesOperations.createPersistentVolumeClaim(
-            tmsConfigProperties.namespaceName(),
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             tmsConfigProperties.dbApplicationName,
             storageCapacity,
             tmsConfigProperties.dbPVCName()
@@ -101,10 +104,10 @@ class DatabaseOperations(
             configMapData[it.name] = String(fileStream.readAllBytes())
         }
         this.genericKubernetesOperations.createConfigMap(
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             tmsConfigProperties.dbInitConfigMapName(),
             tmsConfigProperties.dbApplicationName,
-            tmsConfigProperties.namespaceName(),
+            tmsCliConfiguration.namespaceName(),
             configMapData
         )
     }
@@ -115,7 +118,7 @@ class DatabaseOperations(
             .withName(tmsConfigProperties.dbApplicationName)
             .withLabels<String, String>(
                 mapOf(
-                    Pair("part-of", tmsConfigProperties.namespaceName()),
+                    Pair("part-of", tmsCliConfiguration.namespaceName()),
                 )
             )
             .endMetadata()
@@ -125,7 +128,7 @@ class DatabaseOperations(
             .withMatchLabels<String, String>(
                 mapOf(
                     Pair("name", tmsConfigProperties.dbApplicationName),
-                    Pair("part-of", tmsConfigProperties.namespaceName()),
+                    Pair("part-of", tmsCliConfiguration.namespaceName()),
                 )
             )
             .endSelector()
@@ -135,7 +138,7 @@ class DatabaseOperations(
             .withLabels<String, String>(
                 mapOf(
                     Pair("name", tmsConfigProperties.dbApplicationName),
-                    Pair("part-of", tmsConfigProperties.namespaceName())
+                    Pair("part-of", tmsCliConfiguration.namespaceName())
                 )
             )
             .endMetadata()
@@ -251,7 +254,7 @@ class DatabaseOperations(
         this.kubernetesClient
             .apps()
             .deployments()
-            .inNamespace(tmsConfigProperties.namespaceName())
+            .inNamespace(tmsCliConfiguration.namespaceName())
             .resource(deployment)
             .createOrReplace()
     }
@@ -269,18 +272,18 @@ class DatabaseOperations(
             .createService(
                 tmsConfigProperties.dbInternalNetworkName(),
                 "ClusterIP",
-                tmsConfigProperties.namespaceName(),
-                tmsConfigProperties.namespaceName(),
+                tmsCliConfiguration.namespaceName(),
+                tmsCliConfiguration.namespaceName(),
                 tmsConfigProperties.dbApplicationName,
                 ports
             )
-        if (tmsConfigProperties.installationExposeServices) {
+        if (tmsCliConfiguration.exposeServices!!) {
             this.genericKubernetesOperations
                 .createService(
                     tmsConfigProperties.dbExternalNetworkName(),
                     "LoadBalancer",
-                    tmsConfigProperties.namespaceName(),
-                    tmsConfigProperties.namespaceName(),
+                    tmsCliConfiguration.namespaceName(),
+                    tmsCliConfiguration.namespaceName(),
                     tmsConfigProperties.dbApplicationName,
                     ports
                 )

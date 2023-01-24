@@ -1,27 +1,11 @@
 package red.tetracube.tms.operations.guests.create
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.EncodeHintType
-import com.google.zxing.MultiFormatWriter
-import com.google.zxing.client.j2se.MatrixToImageWriter
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
-import org.jboss.resteasy.spi.WriterException
 import org.keycloak.admin.client.Keycloak
-import org.keycloak.admin.client.KeycloakBuilder
-import org.keycloak.representations.idm.CredentialRepresentation
-import org.keycloak.representations.idm.UserRepresentation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import red.tetracube.tms.clients.TetraResteasyReactiveClientProvider
 import red.tetracube.tms.properties.TMSConfigProperties
-import java.io.File
-import java.io.IOException
-import java.util.*
-import javax.annotation.PostConstruct
 import javax.enterprise.context.ApplicationScoped
-import kotlin.io.path.Path
-import kotlin.math.log
 
 
 @ApplicationScoped
@@ -34,7 +18,7 @@ class GuestCreateOperation(
 
     private lateinit var keycloak: Keycloak
 
-    @PostConstruct
+ /*   @PostConstruct
     fun initKeycloak() {
         val resteasyClient = TetraResteasyReactiveClientProvider()
             .newRestEasyClient(null, null, true)
@@ -176,5 +160,5 @@ class GuestCreateOperation(
         } else {
             osRuntime.exec(arrayOf("sh", "-c", cmd.toString()))
         }
-    }
+    }*/
 }
