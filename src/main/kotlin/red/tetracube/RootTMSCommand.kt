@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import red.tetracube.tms.enums.Operations
+import red.tetracube.tms.operations.houses.create.HouseCreateOperation
 import red.tetracube.tms.operations.installation.InstallationOrchestrator
 import java.io.File
 
@@ -15,7 +16,8 @@ import java.io.File
     description = ["Install and maintain TetraCube platform"]
 )
 class RootTMSCommand(
-    private val installationOrchestrator: InstallationOrchestrator
+    private val installationOrchestrator: InstallationOrchestrator,
+    private val houseCreateOperation: HouseCreateOperation
 ) : Runnable {
 
     private val logger = LoggerFactory.getLogger(RootTMSCommand::class.java)
@@ -39,21 +41,20 @@ class RootTMSCommand(
     )
     lateinit var operation: Operations
 
-    /*  @Throws(Exception::class)
-      override fun run(vararg args: String): Int {
-          if (tmsConfigProperties.operationType == "install") {
-              this.installationOrchestrator.doInstallation()
-          } else if (tmsConfigProperties.operationType == "create guest") {
-              this.guestCreateOperation.createUser()
-          }
-          Quarkus.waitForExit();
-          return 0
-      }*/
+    @Option(
+        names = ["--house-name"],
+        description = [
+            "Specifies the name the house to create or",
+            "to use as house parent name for the new users"
+        ],
+        required = true
+    )
+    lateinit var houseName: String
 
     override fun run() {
         when(this.operation) {
             Operations.INSTALL -> this.installationOrchestrator.doInstallation()
-            Operations.CREATE_HOUSE -> TODO()
+            Operations.CREATE_HOUSE -> this.houseCreateOperation.createHouse(houseName)
             Operations.CREATE_GUEST -> TODO()
         }
     }

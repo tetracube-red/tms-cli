@@ -32,4 +32,4 @@ Here a random list of things to do as next steps
  - [ ] query the house api to create the house
  - [ ] query the guest api to create guest and associate with the house
  - [ ] in some way the responses of the apis should be stored for further more uses (save them into the file?)
- - 
+ - [ ] clients should use configuration hostnames

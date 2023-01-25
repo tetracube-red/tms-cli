@@ -1,6 +1,6 @@
 package red.tetracube.tms.producers;
 
-import io.vertx.core.impl.logging.LoggerFactory
+import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 import picocli.CommandLine.ParseResult
 import red.tetracube.tms.properties.TMSConfiguration
