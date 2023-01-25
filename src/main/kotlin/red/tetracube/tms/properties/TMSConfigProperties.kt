@@ -8,6 +8,9 @@ data class TMSConfigProperties(
     @ConfigProperty(name = "tms-cli.db.application-name")
     val dbApplicationName: String,
 
+    @ConfigProperty(name = "tms-cli.house-fabric.application-name")
+    val houseFabricApplicationName: String,
+
     @ConfigProperty(name = "tms-cli.db.name")
     val dbName: String,
 
@@ -15,10 +18,7 @@ data class TMSConfigProperties(
     val dbUsername: String,
 
     @ConfigProperty(name = "tms-cli.db.pg-data")
-    val dbPgDataPath: String,
-
-    @ConfigProperty(name = "tms-cli.mobile.client-id")
-    val mobileClientId: String
+    val dbPgDataPath: String
 ) {
 
     fun dbSecretName(): String {
@@ -45,8 +45,12 @@ data class TMSConfigProperties(
         return "lb-$dbApplicationName-net"
     }
 
-    fun gatekeeperDbConnectionString(): String {
-        return "jdbc:postgresql://${dbInternalNetworkName()}:5432/$dbName?currentSchema=gatekeeper"
+    fun houseFabricSecretName(): String {
+        return "secrets-$houseFabricApplicationName"
+    }
+
+    fun houseFabricConfigMaps(): String {
+        return "configs-$houseFabricApplicationName"
     }
 
 }

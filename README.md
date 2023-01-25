@@ -28,7 +28,7 @@ The CLI accepts these options to run:
 Here a random list of things to do as next steps
  - [x] remove keycloak as gatekeeper
  - [ ] configure private and public keys for jwt publication
- - [ ] create config maps and secrets for creating jwt and assign them to the proper services
+ - [x] create config maps and secrets to store configurations of house fabric service
  - [ ] query the house api to create the house
  - [ ] query the guest api to create guest and associate with the house
  - [ ] in some way the responses of the apis should be stored for further more uses (save them into the file?)

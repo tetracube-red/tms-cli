@@ -17,7 +17,7 @@ class NamespaceOperations(
             .withName(tmsCliConfiguration.namespaceName())
             .withLabels<String, String>(
                 mapOf(
-                    Pair<String, String>("installation-name", tmsCliConfiguration.installationName!!)
+                    Pair<String, String>("installation-name", "tetracube_red_platform")
                 )
             )
             .and()
