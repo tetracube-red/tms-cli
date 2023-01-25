@@ -8,7 +8,6 @@ class TMSConfiguration {
     var kubernetes: TMSConfigurationKubernetes? = null
     var certs: TMSConfigurationCertificates? = null
     var database: TMSConfigurationDatabase? = null
-    var gatekeeper: TMSConfigurationGatekeeper? = null
 
     fun namespaceName(): String {
         return this.installationName!!

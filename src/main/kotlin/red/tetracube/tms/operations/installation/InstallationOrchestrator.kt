@@ -6,9 +6,7 @@ import javax.enterprise.context.ApplicationScoped
 @ApplicationScoped
 class InstallationOrchestrator(
     private val namespaceOperations: NamespaceOperations,
-    private val databaseOperations: DatabaseOperations,
-    private val gatekeeperOperations: GatekeeperOperations,
-    private val gatekeeperInitializationOperations: GatekeeperInitializationOperations,
+    private val databaseOperations: DatabaseOperations
 ) {
 
     private val logger = LoggerFactory.getLogger(InstallationOrchestrator::class.java)
@@ -19,11 +17,5 @@ class InstallationOrchestrator(
 
         logger.info("Deploying database")
         this.databaseOperations.installDatabase()
-
-        logger.info("Deploying gatekeeper")
-        this.gatekeeperOperations.installGatekeeper()
-
-        logger.info("Setup gatekeeper")
-        this.gatekeeperInitializationOperations.createRealm()
     }
 }

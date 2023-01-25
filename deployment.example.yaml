@@ -1,0 +1,12 @@
+installationName: installation name
+exposeServices: expose internal services -> true | false
+hostname: hostname to expose
+kubernetes:
+  affinityNode: preferred node name for database service
+  kubernetesConfig: kubernetes cluster connection configuration file path
+certs:
+  certificateKey: path to certificate's key
+  certificatePem: path to certificate's pem
+database:
+  password: password of the main database user
+  dataPath: where store database's data on physical disk

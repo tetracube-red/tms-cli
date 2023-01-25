@@ -17,12 +17,6 @@ data class TMSConfigProperties(
     @ConfigProperty(name = "tms-cli.db.pg-data")
     val dbPgDataPath: String,
 
-    @ConfigProperty(name = "tms-cli.gatekeeper.application-name")
-    val gatekeeperApplicationName: String,
-
-    @ConfigProperty(name = "tms-cli.gatekeeper.admin-username")
-    val gatekeeperAdminUsername: String,
-
     @ConfigProperty(name = "tms-cli.mobile.client-id")
     val mobileClientId: String
 ) {
@@ -51,28 +45,8 @@ data class TMSConfigProperties(
         return "lb-$dbApplicationName-net"
     }
 
-    fun gatekeeperSecretName(): String {
-        return "secrets-$gatekeeperApplicationName"
-    }
-
-    fun gatekeeperConfigMapName(): String {
-        return "configs-$gatekeeperApplicationName"
-    }
-
     fun gatekeeperDbConnectionString(): String {
         return "jdbc:postgresql://${dbInternalNetworkName()}:5432/$dbName?currentSchema=gatekeeper"
-    }
-
-    fun gatekeeperCertificatesSecret(): String {
-        return "keystore-secret-$gatekeeperApplicationName"
-    }
-
-    fun gatekeeperLoadBalancer(): String {
-        return "lb-$gatekeeperApplicationName"
-    }
-
-    fun gatekeeperIngress(): String {
-        return "in-$gatekeeperApplicationName"
     }
 
 }

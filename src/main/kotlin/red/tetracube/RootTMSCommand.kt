@@ -2,26 +2,20 @@ package red.tetracube
 
 import io.quarkus.picocli.runtime.annotations.TopCommand
 import org.slf4j.LoggerFactory
-import org.yaml.snakeyaml.Yaml
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import red.tetracube.tms.enums.Operations
 import red.tetracube.tms.operations.installation.InstallationOrchestrator
-import red.tetracube.tms.properties.TMSConfiguration
 import java.io.File
-import java.io.FileInputStream
 
 
 @TopCommand
 @Command(
     name = "tms",
-    description = ["Install and maintain TetraCube platform"],
- //   mixinStandardHelpOptions = true
+    description = ["Install and maintain TetraCube platform"]
 )
 class RootTMSCommand(
-    private val installationOrchestrator: InstallationOrchestrator,
-    /*  private val guestCreateOperation: GuestCreateOperation,
-      private val tmsConfigProperties: TMSConfigProperties*/
+    private val installationOrchestrator: InstallationOrchestrator
 ) : Runnable {
 
     private val logger = LoggerFactory.getLogger(RootTMSCommand::class.java)

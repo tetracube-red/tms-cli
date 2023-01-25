@@ -15,12 +15,18 @@ For each kind of operation the CLI ha a proper command:
 
 ## How to use the CLI
 
+1. create local copy of the file `deployment.example.yaml`;
+2. fill the file with your data according with the description supplied in the
+file itself;
+3. run the cli indicating the path of the configuration file;
 
+The CLI accepts these options to run:
+* `--config-file`, `-c`: 
 
 ## ToDo
 
 Here a random list of things to do as next steps
- - [ ] remove keycloak as gatekeeper
+ - [x] remove keycloak as gatekeeper
  - [ ] configure private and public keys for jwt publication
  - [ ] create config maps and secrets for creating jwt and assign them to the proper services
  - [ ] query the house api to create the house

@@ -1,7 +1,6 @@
 package red.tetracube.tms.operations.guests.create
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.keycloak.admin.client.Keycloak
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import red.tetracube.tms.properties.TMSConfigProperties
@@ -15,8 +14,6 @@ class GuestCreateOperation(
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(GuestCreateOperation::class.java)
-
-    private lateinit var keycloak: Keycloak
 
  /*   @PostConstruct
     fun initKeycloak() {
