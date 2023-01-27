@@ -8,8 +8,8 @@ data class TMSConfigProperties(
     @ConfigProperty(name = "tms-cli.db.application-name")
     val dbApplicationName: String,
 
-    @ConfigProperty(name = "tms-cli.kafka.application-name")
-    val kafkaApplicationName: String,
+    @ConfigProperty(name = "tms-cli.redis.application-name")
+    val redisApplicationName: String,
 
     @ConfigProperty(name = "tms-cli.house-fabric.application-name")
     val houseFabricApplicationName: String,
@@ -48,12 +48,12 @@ data class TMSConfigProperties(
         return "lb-$dbApplicationName-net"
     }
 
-    fun kafkaInternalNetworkName(): String {
-        return "srv-$kafkaApplicationName-net"
+    fun redisInternalNetworkName(): String {
+        return "srv-$redisApplicationName-net"
     }
 
-    fun kafkaExternalNetworkName(): String {
-        return "lb-$kafkaApplicationName-net"
+    fun redisExternalNetworkName(): String {
+        return "lb-$redisApplicationName-net"
     }
 
     fun houseFabricSecretName(): String {

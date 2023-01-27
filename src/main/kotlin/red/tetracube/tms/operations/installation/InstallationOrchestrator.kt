@@ -8,7 +8,7 @@ class InstallationOrchestrator(
     private val namespaceOperations: NamespaceOperations,
     private val databaseOperations: DatabaseOperations,
     private val houseFabricOperations: HouseFabricOperations,
-    private val kafkaOperations: KafkaOperations
+    private val microservicesMessageBrokerOperations: MicroservicesMessageBrokerOperations
 ) {
 
     private val logger = LoggerFactory.getLogger(InstallationOrchestrator::class.java)
@@ -21,7 +21,7 @@ class InstallationOrchestrator(
         this.databaseOperations.installDatabase()
 
         logger.info("Deploying message broker")
-        this.kafkaOperations.installBroker()
+        this.microservicesMessageBrokerOperations.installBroker()
 
         logger.info("Deploying hose fabric service")
         this.houseFabricOperations.installHouseFabric()
