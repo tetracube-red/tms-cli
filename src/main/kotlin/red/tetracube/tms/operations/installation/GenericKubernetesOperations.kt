@@ -155,13 +155,13 @@ class GenericKubernetesOperations(
 
     fun createService(
         serviceName: String,
-        serviceType: String,
+        serviceType: String?,
         namespace: String,
         partOfApplication: String,
         applicationName: String,
         servicePorts: List<ServicePort>
     ) {
-        val service = ServiceBuilder()
+        val serviceBuilder = ServiceBuilder()
             .withNewMetadata()
             .withName(serviceName)
             .withNamespace(namespace)
@@ -173,7 +173,6 @@ class GenericKubernetesOperations(
             )
             .endMetadata()
             .withNewSpec()
-            .withType(serviceType)
             .withPorts(servicePorts)
             .withSelector<String, String>(
                 mapOf(
@@ -181,7 +180,12 @@ class GenericKubernetesOperations(
                     Pair("part-of", partOfApplication),
                 )
             )
-            .endSpec()
+
+        serviceType?.let {
+            serviceBuilder.withType(it)
+        }
+
+        val service = serviceBuilder.endSpec()
             .build()
 
         this.kubernetesClient
@@ -204,7 +208,7 @@ class GenericKubernetesOperations(
             .withAnnotations<String, String>(
                 mapOf(
                     Pair("kubernetes.io/ingress.class", "nginx"),
-                    Pair("ingress.kubernetes.io/ssl-redirect" , "false")
+                    Pair("ingress.kubernetes.io/ssl-redirect", "false")
                 )
             )
             .endMetadata()

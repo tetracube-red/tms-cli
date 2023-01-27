@@ -8,7 +8,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <properties>
         <compiler-plugin.version>3.10.1</compiler-plugin.version>
-        <kotlin.version>1.7.21</kotlin.version>
+        <kotlin.version>1.8.0</kotlin.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -96,7 +96,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <artifactId>kotlin-stdlib</artifactId>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>

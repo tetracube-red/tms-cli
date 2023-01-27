@@ -47,7 +47,7 @@ class RootTMSCommand(
             "Specifies the name the house to create or",
             "to use as house parent name for the new users"
         ],
-        required = true
+        required = false
     )
     lateinit var houseName: String
 

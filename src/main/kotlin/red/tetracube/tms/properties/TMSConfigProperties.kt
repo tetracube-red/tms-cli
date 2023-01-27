@@ -8,6 +8,9 @@ data class TMSConfigProperties(
     @ConfigProperty(name = "tms-cli.db.application-name")
     val dbApplicationName: String,
 
+    @ConfigProperty(name = "tms-cli.kafka.application-name")
+    val kafkaApplicationName: String,
+
     @ConfigProperty(name = "tms-cli.house-fabric.application-name")
     val houseFabricApplicationName: String,
 
