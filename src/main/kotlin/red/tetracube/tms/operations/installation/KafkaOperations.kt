@@ -27,33 +27,33 @@ class KafkaOperations(
     }
 
     private fun createSecrets() {
-       /* val secretsData = mapOf(
-            Pair("postgres-user", tmsConfigProperties.dbUsername),
-            Pair("postgres-password", tmsCliConfiguration.database!!.password!!)
-        )
-            .toMutableMap()
-        this.genericKubernetesOperations.createSecret(
-            tmsCliConfiguration.namespaceName(),
-            tmsConfigProperties.dbSecretName(),
-            tmsConfigProperties.dbApplicationName,
-            tmsCliConfiguration.namespaceName(),
-            secretsData
-        )*/
+        /* val secretsData = mapOf(
+             Pair("postgres-user", tmsConfigProperties.dbUsername),
+             Pair("postgres-password", tmsCliConfiguration.database!!.password!!)
+         )
+             .toMutableMap()
+         this.genericKubernetesOperations.createSecret(
+             tmsCliConfiguration.namespaceName(),
+             tmsConfigProperties.dbSecretName(),
+             tmsConfigProperties.dbApplicationName,
+             tmsCliConfiguration.namespaceName(),
+             secretsData
+         )*/
     }
 
     private fun createConfigMap() {
-      /*  val configMapData = mapOf(
-            Pair("postgres_db", tmsConfigProperties.dbName),
-            Pair("pgdata", tmsConfigProperties.dbPgDataPath)
-        )
-            .toMutableMap()
-        this.genericKubernetesOperations.createConfigMap(
-            tmsCliConfiguration.namespaceName(),
-            tmsConfigProperties.dbConfigMaps(),
-            tmsConfigProperties.dbApplicationName,
-            tmsCliConfiguration.namespaceName(),
-            configMapData
-        )*/
+        /*  val configMapData = mapOf(
+              Pair("postgres_db", tmsConfigProperties.dbName),
+              Pair("pgdata", tmsConfigProperties.dbPgDataPath)
+          )
+              .toMutableMap()
+          this.genericKubernetesOperations.createConfigMap(
+              tmsCliConfiguration.namespaceName(),
+              tmsConfigProperties.dbConfigMaps(),
+              tmsConfigProperties.dbApplicationName,
+              tmsCliConfiguration.namespaceName(),
+              configMapData
+          )*/
     }
 
     private fun createDeployment() {
@@ -100,7 +100,7 @@ class KafkaOperations(
                                 .build(),
                             ContainerPortBuilder()
                                 .withName("external-tcp")
-                                .withContainerPort(9094)
+                                .withContainerPort(9093)
                                 .build()
                         )
                         .withEnv(
@@ -118,15 +118,20 @@ class KafkaOperations(
                                 .build(),
                             EnvVarBuilder()
                                 .withName("KAFKA_CFG_LISTENERS")
-                                .withValue("PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094")
+                                // .withValue("CLIENT://:9092,CONTROLLER://:9094,EXTERNAL://:9093")
+                                .withValue("SASL_SSL://:9092")
                                 .build(),
                             EnvVarBuilder()
                                 .withName("KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP")
-                                .withValue("CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT")
+                                .withValue("CONTROLLER:PLAINTEXT,CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT")
                                 .build(),
                             EnvVarBuilder()
                                 .withName("KAFKA_CFG_ADVERTISED_LISTENERS")
-                                .withValue("PLAINTEXT://127.0.0.1:9092,EXTERNAL://localhost:9094")
+                                .withValue("CLIENT://kafka:9092,EXTERNAL://127.0.0.1:9093")
+                                .build(),
+                            EnvVarBuilder()
+                                .withName("KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE")
+                                .withValue("true")
                                 .build(),
                             EnvVarBuilder()
                                 .withName("KAFKA_BROKER_ID")
@@ -134,17 +139,49 @@ class KafkaOperations(
                                 .build(),
                             EnvVarBuilder()
                                 .withName("KAFKA_CFG_CONTROLLER_QUORUM_VOTERS")
-                                .withValue("1@127.0.0.1:9093")
+                                .withValue("1@127.0.0.1:9094")
+                                .build(),
+                            EnvVarBuilder()
+                                .withName("KAFKA_CFG_BROKER_ID")
+                                .withValue("1")
                                 .build(),
                             EnvVarBuilder()
                                 .withName("ALLOW_PLAINTEXT_LISTENER")
-                                .withValue("yes")
+                                //.withValue("yes")
+                                .withValue("no")
                                 .build(),
                             EnvVarBuilder()
                                 .withName("KAFKA_CFG_INTER_BROKER_LISTENER_NAME")
                                 .withValue("CLIENT")
+                                .build(),
+                            EnvVarBuilder()
+                                .withName("KAFKA_KRAFT_CLUSTER_ID")
+                                .withValue("1")
+                                .build(),
+                            EnvVarBuilder()
+                                .withName("KAFKA_TLS_TYPE")
+                                .withValue("PEM")
                                 .build()
                         )
+                        .withVolumeMounts(
+                            listOf(
+                                VolumeMountBuilder()
+                                    .withMountPath("/opt/bitnami/kafka/config/certs/")
+                                    .withName("tetracube-certs")
+                                    .build()
+                            )
+                        )
+                        .build()
+                )
+            )
+            .withVolumes(
+                listOf(
+                    VolumeBuilder()
+                        .withName("tetracube-certs")
+                        .withNewConfigMap()
+                        //.withName(tmsConfigProperties.dbInitConfigMapName())
+                        .withName("keystore-secret-tetracube-gatekeeper")
+                        .endConfigMap()
                         .build()
                 )
             )
@@ -172,7 +209,7 @@ class KafkaOperations(
         )
         this.genericKubernetesOperations
             .createService(
-                tmsConfigProperties.dbInternalNetworkName(),
+                tmsConfigProperties.kafkaInternalNetworkName(),
                 null,
                 tmsCliConfiguration.namespaceName(),
                 tmsCliConfiguration.namespaceName(),
@@ -183,14 +220,14 @@ class KafkaOperations(
             val extPort = listOf(
                 ServicePortBuilder()
                     .withName("tcp")
-                    .withPort(9094)
-                    .withTargetPort(IntOrString(9094))
+                    .withPort(9093)
+                    .withTargetPort(IntOrString(9093))
                     .withProtocol("TCP")
                     .build()
             )
             this.genericKubernetesOperations
                 .createService(
-                    tmsConfigProperties.dbExternalNetworkName(),
+                    tmsConfigProperties.kafkaExternalNetworkName(),
                     "LoadBalancer",
                     tmsCliConfiguration.namespaceName(),
                     tmsCliConfiguration.namespaceName(),

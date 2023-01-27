@@ -27,10 +27,12 @@ The CLI accepts these options to run:
 
 Here a random list of things to do as next steps
  - [x] remove keycloak as gatekeeper
- - [ ] put configurations maps into k8s for house-fabric service
+ - [x] put configurations maps into k8s for house-fabric service
  - [ ] configure private and public keys for jwt publication
  - [x] create config maps and secrets to store configurations of house fabric service
- - [ ] query the house api to create the house
+ - [x] query the house api to create the house
  - [ ] query the guest api to create guest and associate with the house
  - [ ] in some way the responses of the apis should be stored for further more uses (save them into the file?)
  - [ ] clients should use configuration hostnames
+ - [ ] install ssl certificates as global secrets
+ - [ ] other secrets should be global secrets on the application's secret and not replicated across the services

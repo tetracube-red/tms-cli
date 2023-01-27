@@ -48,6 +48,14 @@ data class TMSConfigProperties(
         return "lb-$dbApplicationName-net"
     }
 
+    fun kafkaInternalNetworkName(): String {
+        return "srv-$kafkaApplicationName-net"
+    }
+
+    fun kafkaExternalNetworkName(): String {
+        return "lb-$kafkaApplicationName-net"
+    }
+
     fun houseFabricSecretName(): String {
         return "secrets-$houseFabricApplicationName"
     }
