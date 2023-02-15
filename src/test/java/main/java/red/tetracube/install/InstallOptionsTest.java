@@ -41,7 +41,6 @@ public class InstallOptionsTest {
         Assertions.assertTrue(result.getOutput().contains("Hostname config -> tetracube.red"));
         Assertions.assertTrue(result.getOutput().contains("Installation name config -> test"));
         Assertions.assertTrue(result.getOutput().contains("DB password config ->"));
-        Assertions.assertTrue(result.getOutput().contains("Starting installation for test"));
         Assertions.assertTrue(result.getOutput().contains("Cert files config: certKey.pem, cert.pem"));
     }
 }

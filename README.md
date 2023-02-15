@@ -28,6 +28,7 @@ successfully the application:
 You need to specify some options in order to install the platform in the target environment, so
 beside the "**install**" command you need to specify:
 
+* `--k8s-config=<k8sFile>`: specifies the cluster configuration file
 * `--cert-files=<certificates>[,<certificates>...]`: specifies key and certificate files separated by comma
 * `--db-password=<dbPassword>`: define the name of database
 * `-h, --help`: show this help message and exit.

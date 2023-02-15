@@ -5,13 +5,14 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
+@Singleton
 public class InstallOptions {
 
     private File k8sFile;

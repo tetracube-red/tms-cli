@@ -49,9 +49,6 @@ public class InstallCommand implements Runnable {
     private List<File> certificates;
 
     @Inject
-    InstallOptions installOptions;
-
-    @Inject
     InstallationCoordinatorService installationCoordinatorService;
 
     @Override
