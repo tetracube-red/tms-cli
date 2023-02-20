@@ -3,8 +3,8 @@ package red.tetracube.install;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
+import red.tetracube.core.extensions.StringExtensions;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Singleton;
 import java.io.File;
 import java.util.List;
@@ -77,5 +77,9 @@ public class InstallOptions {
 
     public List<File> getCertFiles() {
         return certFiles;
+    }
+
+    public String installationNameSlug() {
+        return StringExtensions.toSlug(installationName);
     }
 }

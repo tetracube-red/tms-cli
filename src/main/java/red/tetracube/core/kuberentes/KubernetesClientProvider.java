@@ -1,4 +1,4 @@
-package red.tetracube.core.clients;
+package red.tetracube.core.kuberentes;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClient;
