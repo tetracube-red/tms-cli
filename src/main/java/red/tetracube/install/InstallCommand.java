@@ -48,6 +48,20 @@ public class InstallCommand implements Runnable {
     )
     private List<File> certificates;
 
+    @CommandLine.Option(
+            names = {"--db-persistent-path"},
+            description = {"specifies the path on the cluster's node where the database can store persistence file"},
+            required = true
+    )
+    private String dbPersistentPath;
+
+    @CommandLine.Option(
+            names = {"--db-persistent-path-node-name"},
+            description = {"specifies the node name where the persistent path is created"},
+            required = true
+    )
+    private String dbPersistentPathNodeName;
+
     @Inject
     InstallationCoordinatorService installationCoordinatorService;
 

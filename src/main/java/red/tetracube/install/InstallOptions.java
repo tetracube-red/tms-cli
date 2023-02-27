@@ -20,6 +20,8 @@ public class InstallOptions {
     private String installationName;
     private String dbPassword;
     private List<File> certFiles;
+    private String dbPersistentPath;
+    private String dbPersistentPathNodeName;
 
     private final Logger LOGGER = LoggerFactory.getLogger(InstallOptions.class);
 
@@ -57,6 +59,16 @@ public class InstallOptions {
                     var files = this.certFiles.stream().map(File::getName).collect(Collectors.joining(", "));
                     LOGGER.info("Cert files config: {}", files);
                 });
+        Optional.ofNullable(commandParseResult.matchedOption("db-persistent-path"))
+                .ifPresent(dbPersistentPath -> {
+                    this.dbPersistentPath = dbPersistentPath.getValue();
+                    LOGGER.info("Database persistent path: {}", this.dbPersistentPath);
+                });
+        Optional.ofNullable(commandParseResult.matchedOption("db-persistent-path-node-name"))
+                .ifPresent(dbPersistentPathNodeName -> {
+                    this.dbPersistentPathNodeName = dbPersistentPathNodeName.getValue();
+                    LOGGER.info("Database persistent path node name: {}", this.dbPersistentPathNodeName);
+                });
     }
 
     public File getK8sFile() {
@@ -81,5 +93,13 @@ public class InstallOptions {
 
     public String installationNameSlug() {
         return StringExtensions.toSlug(installationName);
+    }
+
+    public String getDbPersistentPath() {
+        return dbPersistentPath;
+    }
+
+    public String getDbPersistentPathNodeName() {
+        return dbPersistentPathNodeName;
     }
 }

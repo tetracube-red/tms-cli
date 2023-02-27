@@ -2,21 +2,26 @@ package red.tetracube.core.kuberentes;
 
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.HashMap;
+import java.util.List;
 
 @ApplicationScoped
 public class VolumeOperations {
 
     private final KubernetesClient kubernetesClient;
 
+    private final Logger LOGGER = LoggerFactory.getLogger(VolumeOperations.class);
+
     public VolumeOperations(KubernetesClient kubernetesClient) {
         this.kubernetesClient = kubernetesClient;
     }
 
-    public void createPersistentVolume(String namespace,
-                                       String installationName,
+    public void createPersistentVolume(String installationName,
                                        String applicationName,
                                        String volumeName,
                                        String quantity,
@@ -65,9 +70,58 @@ public class VolumeOperations {
                 .withSpec(persistentVolumeSpec)
                 .build();
         try {
-            this.kubernetesClient.
+            LOGGER.info("⛏ Creating persistent volume {}", volumeName);
+            this.kubernetesClient.persistentVolumes()
+                    .resource(persistentVolume)
+                    .create();
+            LOGGER.info("✔ Persistent volume {} created", volumeName);
+        } catch (KubernetesClientException exception) {
+            if (exception.getStatus().getCode() == 409) {
+                LOGGER.info("⚠ Persistent volume {} already exists", volumeName);
+            }
         }
+    }
 
+    public void createPersistentVolumeClaim(String namespace,
+                                            String installationName,
+                                            String applicationName,
+                                            String capacity,
+                                            String persistentVolumeClaimName) {
+        var persistentVolumeClaimMetadata = new ObjectMetaBuilder()
+                .withName(persistentVolumeClaimName)
+                .withLabels(
+                        new HashMap<>() {{
+                            put("name", applicationName);
+                            put("part-of", installationName);
+                        }}
+                )
+                .build();
+        var persistentVolumeClaim = new PersistentVolumeClaimBuilder()
+                .withMetadata(persistentVolumeClaimMetadata)
+                .withNewSpec()
+                .withStorageClassName("local-storage")
+                .withAccessModes(List.of("ReadWriteOnce"))
+                .withNewResources()
+                .withRequests(
+                        new HashMap<>() {
+                            {
+                                put("storage", Quantity.parse(capacity));
+                            }
+                        }
+                )
+                .endResources()
+                .endSpec()
+                .build();
+        try {
+            LOGGER.info("⛏ Creating volume claim {}", persistentVolumeClaimName);
+            this.kubernetesClient.persistentVolumeClaims()
+                    .inNamespace(namespace)
+                    .resource(persistentVolumeClaim)
+                    .create();
+            LOGGER.info("✔ Persistent volume claim {} created", persistentVolumeClaimName);
+        } catch (KubernetesClientException exception) {
+            LOGGER.info("⚠ Persistent volume claim {} already exists", persistentVolumeClaimName);
+        }
     }
 
 }

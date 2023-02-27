@@ -8,5 +8,8 @@ public interface DatabaseProperties {
     String dbName();
     String pgDataPath();
     String configurationName();
+    String persistentVolumeName();
+    String persistentVolumeClaimName();
+    String initDbScripts();
 
 }
