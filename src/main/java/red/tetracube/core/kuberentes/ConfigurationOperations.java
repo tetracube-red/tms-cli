@@ -66,10 +66,10 @@ public class ConfigurationOperations {
     }
 
     public void createConfigMap(String namespace,
-                             String installationName,
-                             String applicationName,
-                             String configMapName,
-                             Map<String, String> configMapData) {
+                                String installationName,
+                                String applicationName,
+                                String configMapName,
+                                Map<String, String> configMapData) {
         var metadata = new ObjectMetaBuilder()
                 .withName(configMapName)
                 .withLabels(

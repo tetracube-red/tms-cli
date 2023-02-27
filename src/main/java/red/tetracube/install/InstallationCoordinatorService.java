@@ -1,9 +1,11 @@
 package red.tetracube.install;
 
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.tetracube.core.kuberentes.ConfigurationOperations;
+import red.tetracube.core.kuberentes.DeploymentOperations;
 import red.tetracube.core.kuberentes.NamespaceOperations;
 import red.tetracube.core.kuberentes.VolumeOperations;
 import red.tetracube.core.preferences.CliProperties;
@@ -15,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,6 +41,9 @@ public class InstallationCoordinatorService {
     VolumeOperations volumeOperations;
 
     @Inject
+    DeploymentOperations deploymentOperations;
+
+    @Inject
     CliProperties cliProperties;
 
     private final Logger LOGGER = LoggerFactory.getLogger(InstallationCoordinatorService.class);
@@ -49,6 +55,7 @@ public class InstallationCoordinatorService {
         createSecrets();
         createConfigMaps();
         createPersistentVolume();
+        publishDatabase();
     }
 
     public void createNamespace() {
@@ -137,4 +144,98 @@ public class InstallationCoordinatorService {
         );
     }
 
+    public void publishDatabase() {
+        var envs = Arrays.asList(
+                new EnvVarBuilder()
+                        .withName("POSTGRES_PASSWORD")
+                        .withValueFrom(
+                                new EnvVarSourceBuilder()
+                                        .withSecretKeyRef(
+                                                new SecretKeySelectorBuilder()
+                                                        .withName(cliProperties.database().secretName())
+                                                        .withKey("postgres-password")
+                                                        .withOptional(false)
+                                                        .build()
+                                        )
+                                        .build()
+                        )
+                        .build(),
+                new EnvVarBuilder()
+                        .withName("POSTGRES_USER")
+                        .withValueFrom(
+                                new EnvVarSourceBuilder()
+                                        .withSecretKeyRef(
+                                                new SecretKeySelectorBuilder()
+                                                        .withName(cliProperties.database().secretName())
+                                                        .withKey("postgres-user")
+                                                        .withOptional(false)
+                                                        .build()
+                                        )
+                                        .build()
+                        )
+                        .build(),
+                new EnvVarBuilder()
+                        .withName("POSTGRES_DB")
+                        .withValueFrom(
+                                new EnvVarSourceBuilder()
+                                        .withConfigMapKeyRef(
+                                                new ConfigMapKeySelectorBuilder()
+                                                        .withName(cliProperties.database().configurationName())
+                                                        .withKey("postgres_db")
+                                                        .withOptional(false)
+                                                        .build()
+                                        )
+                                        .build()
+                        )
+                        .build(),
+                new EnvVarBuilder()
+                        .withName("PGDATA")
+                        .withValueFrom(
+                                new EnvVarSourceBuilder()
+                                        .withConfigMapKeyRef(
+                                                new ConfigMapKeySelectorBuilder()
+                                                        .withName(cliProperties.database().configurationName())
+                                                        .withKey("pgdata")
+                                                        .withOptional(false)
+                                                        .build()
+                                        )
+                                        .build()
+                        )
+                        .build()
+        );
+        var volumeMounts = Arrays.asList(
+                new VolumeMountBuilder()
+                        .withMountPath("/var/lib/postgresql/data")
+                        .withName("tetracube-db-data-volume")
+                        .build(),
+                new VolumeMountBuilder()
+                        .withMountPath("/docker-entrypoint-initdb.d")
+                        .withName("db-init-scripts")
+                        .build()
+        );
+        var volumes = Arrays.asList(
+                new VolumeBuilder()
+                        .withName("tetracube-db-data-volume")
+                        .withPersistentVolumeClaim(
+                                new PersistentVolumeClaimVolumeSourceBuilder()
+                                        .withClaimName(cliProperties.database().persistentVolumeClaimName())
+                                        .build()
+                        )
+                        .build(),
+                new VolumeBuilder()
+                        .withName("db-init-scripts")
+                        .withNewConfigMap()
+                        .withName(cliProperties.database().initDbScripts())
+                        .endConfigMap()
+                        .build()
+        );
+        deploymentOperations.createApplicationDeployment(
+                installOptions.installationNameSlug(),
+                installOptions.installationNameSlug(),
+                cliProperties.database().applicationName(),
+                envs,
+                volumeMounts,
+                volumes
+        );
+    }
 }
